@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Effet Scroll Fixe</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .spacer {
+      height: 100vh;
+    }
+    .sticky-container {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sticky-image {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+      z-index: 2;
+    }
+    .sticky-image img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="spacer"></div>
+
+  <div class="sticky-container">
+    <div class="sticky-image" id="image-section">
+      <img src="scroll-image.jpg" alt="Maison de luxe" />
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <script>
+    const section = document.getElementById("image-section");
+    let wheelCount = 0;
+    let scrollDistance = 0;
+    let unlocked = false;
+
+    function unlockScroll() {
+      section.style.position = "relative";
+    }
+
+    function isInStickyZone(top) {
+      return top >= -100 && top <= 50;
+    }
+
+    window.addEventListener("wheel", (e) => {
+      if (window.innerWidth > 768) {
+        const top = section.getBoundingClientRect().top;
+        if (!unlocked && isInStickyZone(top)) {
+          wheelCount++;
+          if (wheelCount >= 20) {
+            unlocked = true;
+            unlockScroll();
+          }
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener("touchmove", (e) => {
+      if (window.innerWidth <= 768) {
+        const top = section.getBoundingClientRect().top;
+        if (!unlocked && isInStickyZone(top)) {
+          scrollDistance += Math.abs(e.touches[0].clientY - (window.lastY || e.touches[0].clientY));
+          window.lastY = e.touches[0].clientY;
+          if (scrollDistance >= 500) {
+            unlocked = true;
+            unlockScroll();
+          }
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+  </script>
+</body>
+</html>
